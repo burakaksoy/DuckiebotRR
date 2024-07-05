@@ -1,0 +1,39 @@
+27 March 2019 13.00
+I installed RR with MATLAB.
+I run RR example SimpleWebcamService.py on Duckiebot and run SimpleWebcamClient.m on Remote PC.
+I could get camera images successfully.
+
+DETAILS:
+INSTALL RR MATLAB library on only Remote PC.
+(Here we are assuming that you have already installed RR python on Duckiebot and you have MATLAB installed in your remote PC.)
+(Further details can be find at: https://github.com/johnwason/RobotRaconteur_MATLAB_Examples AND https://robotraconteur.com/documentation)
+
+- Go to Download Page of RR(https://robotraconteur.com/Download) and download RR MATLAB for your pc(I did it on Ubuntu 16.04
+-  Simply unpack the archive and add the directory that contains ”RobotRaconteurMex.*” to the path of MATLAB.(If you don't know how to add a directory to the path of MATLAB, here is a refence(Yes, you could have searched by yourself too): http://www.ece.northwestern.edu/local-apps/matlabhelp/techdoc/ref/addpath.html)
+
+- Start the camera service on duckiebot from the RR directory in Duckiebot execute this command:
+python SimpleWebcamService.py
+(You will see that the camera light will be on.)
+
+-------------------------------------------------------------------
+TO GET CAMERA IMAGE ON MATLAB Remote PC;
+- Now on your Remote PC, Download SimpleWebcamClient.m and SimpleWebcamClient_stream.m (from https://github.com/johnwason/RobotRaconteur_MATLAB_Examples)
+- Change some lines in SimpleWebcamClient.m and SimpleWebcamClient_stream.m:
+in this line:
+c_host=RobotRaconteur.ConnectService('rr+tcp://localhost:2355?service=Webcam');
+replace localhost with the ip adress of duckiebot (eg: 192.168.43.141). Or with the name that you already defined the host adress in your /etc/hosts file (eg. Duckiebot 192.168.43.141). So it means you can directly type Duckiebot instead of localhost if you already defined the host adress.
+- Change some lines in SimpleWebcamClient.m:
+comment out c2=c_host.get_Webcams(1)
+comment out frame2=WebcamImageToIM(c2.CaptureFrame());
+comment out these 3 lines in sequence
+figure
+imshow(frame2);
+title(c2.Name)
+
+- After the changes save the file.
+- Now We are ready to see the images on Remote PC:
+- Simply Run SimpleWebcamClient.m file on MATLAB.
+- Or Run SimpleWebcamClient_stream.m on MATLAB.
+
+note: 2355 is the port number which is defined on SimpleWebcamService.py file. 
+note: the First Run file just will show a single image, the second run file will show continuous images(although it is slow)

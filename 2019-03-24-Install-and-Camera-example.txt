@@ -1,0 +1,67 @@
+24 March 2019 01.14
+SUMMARY:
+I installed RR with PYTHON
+I run RR example SimpleWebcamService.py on Duckiebot and run SimpleWebcamClient.py on Remote PC.
+I could get camera images successfully.
+
+DETAILS:
+INSTALL RR with PYTHON into Duckiebot
+Install RR python library on Remote PC and Duckiebot:
+(Further details can be find at: https://github.com/johnwason/RobotRaconteur_Python_Examples AND https://robotraconteur.com/documentation)
+- Download Required softwares(execute on both Duckie and RemotePC):
+sudo apt-get install python2.7 python-serial python-numpy python-opencv python-pygame
+sudo usermod -a -G dialout pi
+sudo usermod -a -G video pi
+(Change “pi” to your username in the usermod command)
+
+- Go to Download Page of RR(https://robotraconteur.com/Download) and download RR python for your pc(I did it on Ubuntu 16.04) and duckiebot.
+- Run the commands below on Remote PC after downloading RR:
+cd /
+sudo tar xvzf /Downloads/RobotRaconteur-0.8.1-beta-Python.linux-x86_64-py2.7-2016-07-18.tar
+(replace with the correct tar file for your platform and latest Robot Raconteur version)
+
+- Run the commands below on Duckie after downloading RR:
+cd /
+sudo tar xvzf ~/RobotRaconteur-0.8.1-beta-Python.linux-armhf-py2.7-2016-07-18.tar
+
+- Download SimpleWebcamService.py from https://github.com/johnwason/RobotRaconteur_Python_Examples into Duckiebot
+- Change some lines in SimpleWebcamService.py:
+camera_names=[(0,"Left"),(1,"Right")] 
+line to 
+camera_names=[(0,"Cam1")]
+because we have only 1 camera on duckiebot.
+
+- Normally, RaspberryPiCam is not detected as a webcam by duckiebot. So you need to make sure that V4L2 drivers installed on duckiebot. Install with command:
+sudo apt-get install v4l-utils
+
+- If installed, then add this line to your /etc/modules file on duckiebot:
+bcm2835-v4l2
+- Then save it and reboot duckiebot.
+- After reboot you can see the camera is detected with this command(resource:https://askubuntu.com/questions/348838/how-to-check-available-webcams-from-the-command-line):
+ls -ltrh /dev/video*
+or
+v4l2-ctl --list-devices
+
+(This solution to detect RasperryPiCam as webcam is found from one of the comments of this blog page: https://www.pyimagesearch.com/2016/01/04/unifying-picamera-and-cv2-videocapture-into-a-single-class-with-opencv/)
+(If this solution would not work I would also try this, but it would require more changes on SimpleWebcamService.py too: https://www.pyimagesearch.com/2015/03/30/accessing-the-raspberry-pi-camera-with-opencv-and-python/)
+
+- As last step on duckiebot to start the service, run the file using this command:
+python SimpleWebcamService.py
+(You will see that the camera light will be on.)
+-------------------------------------------------------------------
+TO GET CAMERA IMAGE ON PYTHON Remote PC;
+- Now on your Remote PC, Download SimpleWebcamClient.py and SimpleWebcamClient_streaming.py (from https://github.com/johnwason/RobotRaconteur_Python_Examples)
+- Change some lines in SimpleWebcamClient.py:
+comment out c2=c_host.get_Webcams(1)
+comment out frame2=WebcamImageToMat(c2.CaptureFrame())
+comment out cv2.imshow(c2.Name,frame2)
+
+- We are ready to see the images with one of the commands below on Remote PC:
+python SimpleWebcamClient.py rr+tcp://localhost:2355?service=Webcam
+python SimpleWebcamClient_streaming.py rr+tcp://localhost:2355?service=Webcam
+
+note: replace localhost with the ip adress of duckiebot (eg: 192.168.43.141). Or with the name that you already defined the host adress in your /etc/hosts file (eg. Duckiebot 192.168.43.141) you can directly type Duckiebot instead of localhost.
+note: 2355 is the port number which is defined on SimpleWebcamService.py file. 
+note: the First command just will show a single image, the second command will show continuous images(although it is slow)
+note: if you have multiple python versions in your system, while executing you may need to use python2 command instead of python command to specify the version as 2.
+

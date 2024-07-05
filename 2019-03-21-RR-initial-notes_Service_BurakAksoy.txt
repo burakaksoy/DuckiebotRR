@@ -1,0 +1,66 @@
+Since RR is not natively supported by commercial hardware, it is necessary to wrap the provided APIs with a RR service.
+Steps for using RR(Overview):
+1- Write a service definition(A plain text)
+2- Develop an object that implements the service definition. 
+3- Expose the implemented service as obj
+4- Create and Register a "Transport"(Transports provide connection between nodes)
+    4.1- Initialize and register 'LocalTransport'
+        ('LocalTransport' provides comm. within the same computer)
+        So, local Transport is not able to comm. over the network
+        Use "TcpTransport" to comm over the network
+    4.2- Initialize adn register 'TcpTransport'
+5- Register service type and the service
+
+6- Shutdown
+--------------------------------------------------------------------------
+Steps for using RR(Some more Details):
+1- Write a service definition(A plain text)
+    TODO
+
+2- Develop an object that implements the service definition.(in Python)
+    RR          --->    Python
+    Properties          Properties
+    Functions           Functions
+    Event               Implemented through 'EventHook' class that must be present as a variable in class
+    Wire                immplemented as properties, initialized to None and will be set by the RR node when the Obj is exposed as service.
+    Callback            immplemented as properties, initialized to None and will be set by the RR node when the Obj is exposed as service.
+
+    Note: RR is multithreaded. All members and funct.s can be called concurrently. So, use a thread lock(mutex)!
+
+3- Expose the implemented service
+    TODO(Nothing much actually)
+    # Initialize the object in the service
+    obj=Create_impl( )
+    obj.Init(serial_port_name )
+
+
+4- Create and Register a "Transport"(Transports provide connection between nodes)
+    4.1- Initialize and register 'LocalTransport'
+        'LocalTransport' created  with RR.LocalTransport()
+        A server is started with a "NodeName" using function StartServerAsNodeName(NodeName) (NodeName can be the same as the service name)
+        A 'NodeName' can only be used in the same computer one at a time.
+        Register with RRN.registerTransport(.) 
+
+        ('LocalTransport' provides comm. within the same computer)
+        So, local Transport is not able to comm. over the network
+        Use "TcpTransport" to comm over the network
+
+    4.2- Initialize and register 'TcpTransport'
+        'TcpTransport' created with  RR.TcpTransport()
+        Register with RRN.registerTransport(.) 
+        Server is started with a port number using function StartServer("port number")
+
+        Note: There is a Port Sharer service that allows multiple nodes to listen on port 48653(Standard RR port). If you would like to use Port Sharer, use StartServerUsingPortSharer instead of StartServer.
+
+5- Register service type and the service
+    RRN.RegisterServiceType(service definition(the plain text))
+    RRN.RegisterService("Name of the service","fully qualified Robot Raconteur type of the object","the object to expose as
+a service")
+    
+     A node can have multiple services registered as long as they have different
+names
+
+6- Shutdown
+    The object is shutdown
+    The Robot Raconteur node is shutdown
+
